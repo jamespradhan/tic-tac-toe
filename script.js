@@ -1,119 +1,105 @@
-// Constants for the game
-const PLAYER_X = 'X';
-const PLAYER_O = 'O';
-const EMPTY = ' ';
+// script.js
 
-let board = Array(9).fill(EMPTY);
-let currentPlayer = PLAYER_X;  // Player X starts
-let gameOver = false;
-
-// DOM elements
 const cells = document.querySelectorAll('.cell');
 const resetButton = document.getElementById('reset');
-const gameBoard = document.getElementById('game-board');
-const messageDiv = document.getElementById('message'); // New message div
+const messageDisplay = document.getElementById('message');
+let currentPlayer = 'X';
+let board = ['', '', '', '', '', '', '', '', ''];
+let isGameActive = true;
 
-// Function to display messages
-function displayMessage(message) {
-    messageDiv.textContent = message; // Set the message text
-}
+const winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
 
-// Add event listener to the cells
-cells.forEach(cell => {
-    cell.addEventListener('click', () => handleCellClick(cell));
-});
+function handleCellClick(event) {
+    const clickedCell = event.target;
+    const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell'));
 
-// Handle player moves
-function handleCellClick(cell) {
-    const cellIndex = cell.getAttribute('data-cell');
-    
-    if (board[cellIndex] !== EMPTY || gameOver) {
-        return;  // Skip if the cell is already taken or the game is over
+    // Only allow player 'X' to make a move
+    if (currentPlayer !== 'X' || board[clickedCellIndex] !== '' || !isGameActive) {
+        return;
     }
 
-    // Player move
-    board[cellIndex] = currentPlayer;
-    cell.textContent = currentPlayer;
-    if (checkWinner(currentPlayer)) {
-        gameOver = true;
-        displayMessage(`${currentPlayer} wins!`); // Use displayMessage instead of alert
-    } else if (board.every(cell => cell !== EMPTY)) {
-        gameOver = true;
-        displayMessage("It's a draw!"); // Use displayMessage instead of alert
-    } else {
-        // Switch to the other player
-        currentPlayer = currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
-        if (currentPlayer === PLAYER_O && !gameOver) {
-            // setTimeout(aiMove, 1000)
-            aiMove(); // AI makes its move
+    board[clickedCellIndex] = currentPlayer;
+    clickedCell.textContent = currentPlayer;
+    checkResult();
+}
+
+function checkResult() {
+    let roundWon = false;
+    for (let i = 0; i < winningConditions.length; i++) {
+        const [a, b, c] = winningConditions[i];
+        if (board[a] === '' || board[b] === '' || board[c] === '') {
+            continue;
+        }
+        if (board[a] === board[b] && board[a] === board[c]) {
+            roundWon = true;
+            break;
         }
     }
-}
 
-// AI move using Alpha-Beta Pruning
-function aiMove() {
-    const bestMove = getBestMove(board);
-    board[bestMove] = PLAYER_O;
-    cells[bestMove].textContent = PLAYER_O;
-    
-    if (checkWinner(PLAYER_O)) {
-        gameOver = true;
-        displayMessage("AI wins!"); // Use displayMessage instead of alert
-    } else if (board.every(cell => cell !== EMPTY)) {
-        gameOver = true;
-        displayMessage("It's a draw!"); // Use displayMessage instead of alert
-    } else {
-        currentPlayer = PLAYER_X;  // Switch back to player
+    if (roundWon) {
+        messageDisplay.textContent = `${currentPlayer} wins!`;
+        isGameActive = false;
+        return;
+    }
+
+    if (!board.includes('')) {
+        messageDisplay.textContent = "It's a draw!";
+        isGameActive = false;
+    }
+
+    // Switch players
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; 
+    if (currentPlayer === 'O' && isGameActive) {
+        aiMove()
     }
 }
 
-// Check for winner
-function checkWinner(player) {
-    const winPatterns = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],  // Rows
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],  // Columns
-        [0, 4, 8], [2, 4, 6]  // Diagonals
-    ];
-
-    return winPatterns.some(pattern => {
-        return pattern.every(index => board[index] === player);
-    });
+function aiMove() {
+    const bestMove = getBestMove(board);
+    board[bestMove] = currentPlayer;
+    cells[bestMove].textContent = currentPlayer;
+    checkResult();
 }
 
 // Minimax with Alpha-Beta Pruning
 function minimax(board, depth, alpha, beta, isMaximizing) {
-    const winner = checkWinner(PLAYER_O) ? PLAYER_O : checkWinner(PLAYER_X) ? PLAYER_X : null;
-    if (winner) {
-        return winner === PLAYER_O ? 1 : -1;
-    }
-
-    if (board.every(cell => cell !== EMPTY)) {
-        return 0;  // Draw
-    }
+    const winner = checkWinner(board);
+    if (winner === 'O') return 1; // AI wins
+    if (winner === 'X') return -1; // Player X wins
+    if (board.every(cell => cell !== '')) return 0; // Draw
 
     if (isMaximizing) {
         let maxEval = -Infinity;
         for (let i = 0; i < 9; i++) {
-            if (board[i] === EMPTY) {
-                board[i] = PLAYER_O;
+            if (board[i] === '') {
+                board[i] = 'O'; // AI's move
                 const eval = minimax(board, depth + 1, alpha, beta, false);
-                board[i] = EMPTY;
+                board[i] = ''; // Undo move
                 maxEval = Math.max(maxEval, eval);
                 alpha = Math.max(alpha, eval);
-                if (beta <= alpha) break;  // Prune
+                if (beta <= alpha) break; // Beta cut-off
             }
         }
         return maxEval;
     } else {
         let minEval = Infinity;
         for (let i = 0; i < 9; i++) {
-            if (board[i] === EMPTY) {
-                board[i] = PLAYER_X;
+            if (board[i] === '') {
+                board[i] = 'X'; // Player's move
                 const eval = minimax(board, depth + 1, alpha, beta, true);
-                board[i] = EMPTY;
+                board[i] = ''; // Undo move
                 minEval = Math.min(minEval, eval);
                 beta = Math.min(beta, eval);
-                if (beta <= alpha) break;  // Prune
+                if (beta <= alpha) break; // Alpha cut-off
             }
         }
         return minEval;
@@ -126,25 +112,39 @@ function getBestMove(board) {
     let bestValue = -Infinity;
 
     for (let i = 0; i < 9; i++) {
-        if (board[i] === EMPTY) {
-            board[i] = PLAYER_O;
+        if (board[i] === '') {
+            board[i] = 'O'; // AI's move
             const moveValue = minimax(board, 0, -Infinity, Infinity, false);
-            board[i] = EMPTY;
-
+            board[i] = ''; // Undo move
             if (moveValue > bestValue) {
-                bestMove = i;
                 bestValue = moveValue;
+                bestMove = i;
             }
         }
     }
     return bestMove;
 }
 
-// Reset the game
+// Check for a winner
+function checkWinner(board) {
+    for (let i = 0; i < winningConditions.length; i++) {
+        const [a, b, c] = winningConditions[i];
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return board[a]; // Return the winner ('X' or 'O')
+        }
+    }
+    return null; // No winner
+}
+
 resetButton.addEventListener('click', () => {
-    board = Array(9).fill(EMPTY);
-    gameOver = false;
-    currentPlayer = PLAYER_X;
+    board = ['', '', '', '', '', '', '', '', ''];
+    isGameActive = true;
+    currentPlayer = 'X';
     cells.forEach(cell => cell.textContent = '');
-    displayMessage(''); // Clear the message
+    messageDisplay.textContent = ''; // Clear the message
+});
+
+// Add event listeners to cells
+cells.forEach(cell => {
+    cell.addEventListener('click', handleCellClick);
 });

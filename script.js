@@ -20,7 +20,6 @@ function handleCellClick(event) {
     const clickedCell = event.target;
     const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell'));
 
-    // Only allow player 'X' to make a move
     if (currentPlayer !== 'X' || board[clickedCellIndex] !== '' || !isGameActive) {
         return;
     }

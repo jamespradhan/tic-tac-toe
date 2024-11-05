@@ -3,7 +3,6 @@ import math
 
 app = Flask(__name__)
 
-# Board constants
 PLAYER = "O"  # Human
 AI = "X"  # AI
 
@@ -11,7 +10,7 @@ AI = "X"  # AI
 def create_board():
     return [["" for _ in range(3)] for _ in range(3)]
 
-# Check if there's a winner
+# Check for winner
 def check_winner(board):
     for row in board:
         if row[0] == row[1] == row[2] != "":

@@ -1,0 +1,70 @@
+/* styles.css */
+
+/* General body styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Container for the game */
+.container {
+    text-align: center;
+}
+
+/* Game board styling */
+.board {
+    display: inline-block;
+    margin: 20px 0; /* Margin added for spacing */
+}
+
+.row {
+    display: flex;
+}
+
+/* Individual cell styling */
+.cell {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    background-color: #fff;
+    border: 2px solid #333;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s;
+}
+
+.cell:hover {
+    background-color: #e0e0e0;
+}
+
+/* Reset button styling */
+.reset {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px; /* Add some space above the reset button */
+}
+
+.reset:hover {
+    background-color: #0056b3;
+}
+
+/* Message display styling */
+.message {
+    margin-top: 20px;
+    font-size: 20px;
+    color: #333;
+    min-height: 30px; /* To keep space for messages */
+}

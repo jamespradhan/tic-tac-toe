@@ -11,6 +11,12 @@ let gameOver = false;
 const cells = document.querySelectorAll('.cell');
 const resetButton = document.getElementById('reset');
 const gameBoard = document.getElementById('game-board');
+const messageDiv = document.getElementById('message'); // New message div
+
+// Function to display messages
+function displayMessage(message) {
+    messageDiv.textContent = message; // Set the message text
+}
 
 // Add event listener to the cells
 cells.forEach(cell => {
@@ -31,10 +37,10 @@ function handleCellClick(cell) {
 
     if (checkWinner(currentPlayer)) {
         gameOver = true;
-        setTimeout(() => alert(`${currentPlayer} wins!`), 100);
+        displayMessage(`${currentPlayer} wins!`); // Use displayMessage instead of alert
     } else if (board.every(cell => cell !== EMPTY)) {
         gameOver = true;
-        setTimeout(() => alert("It's a draw!"), 100);
+        displayMessage("It's a draw!"); // Use displayMessage instead of alert
     } else {
         // Switch to the other player
         currentPlayer = currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
@@ -52,10 +58,10 @@ function aiMove() {
     
     if (checkWinner(PLAYER_O)) {
         gameOver = true;
-        setTimeout(() => alert("AI wins!"), 100);
+        displayMessage("AI wins!"); // Use displayMessage instead of alert
     } else if (board.every(cell => cell !== EMPTY)) {
         gameOver = true;
-        setTimeout(() => alert("It's a draw!"), 100);
+        displayMessage("It's a draw!"); // Use displayMessage instead of alert
     } else {
         currentPlayer = PLAYER_X;  // Switch back to player
     }
@@ -116,8 +122,8 @@ function minimax(board, depth, alpha, beta, isMaximizing) {
 
 // Get the best move for the AI
 function getBestMove(board) {
-    let bestValue = -Infinity;
     let bestMove = -1;
+    let bestValue = -Infinity;
 
     for (let i = 0; i < 9; i++) {
         if (board[i] === EMPTY) {
@@ -126,12 +132,11 @@ function getBestMove(board) {
             board[i] = EMPTY;
 
             if (moveValue > bestValue) {
-                bestValue = moveValue;
                 bestMove = i;
+                bestValue = moveValue;
             }
         }
     }
-
     return bestMove;
 }
 
@@ -141,4 +146,5 @@ resetButton.addEventListener('click', () => {
     gameOver = false;
     currentPlayer = PLAYER_X;
     cells.forEach(cell => cell.textContent = '');
+    displayMessage(''); // Clear the message
 });

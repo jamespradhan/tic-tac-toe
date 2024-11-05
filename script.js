@@ -115,7 +115,7 @@ function getBestMove(board) {
         if (board[i] === '') {
             board[i] = 'O'; // AI's move
             const moveValue = minimax(board, 0, -Infinity, Infinity, false);
-            board[i] = ''; // Undo move
+            board[i] = '';
             if (moveValue > bestValue) {
                 bestValue = moveValue;
                 bestMove = i;
@@ -133,7 +133,7 @@ function checkWinner(board) {
             return board[a]; // Return the winner ('X' or 'O')
         }
     }
-    return null; // No winner
+    return null;
 }
 
 resetButton.addEventListener('click', () => {
@@ -141,7 +141,7 @@ resetButton.addEventListener('click', () => {
     isGameActive = true;
     currentPlayer = 'X';
     cells.forEach(cell => cell.textContent = '');
-    messageDisplay.textContent = ''; // Clear the message
+    messageDisplay.textContent = '';
 });
 
 // Add event listeners to cells

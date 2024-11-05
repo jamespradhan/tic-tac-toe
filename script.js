@@ -34,7 +34,6 @@ function handleCellClick(cell) {
     // Player move
     board[cellIndex] = currentPlayer;
     cell.textContent = currentPlayer;
-
     if (checkWinner(currentPlayer)) {
         gameOver = true;
         displayMessage(`${currentPlayer} wins!`); // Use displayMessage instead of alert
@@ -45,6 +44,7 @@ function handleCellClick(cell) {
         // Switch to the other player
         currentPlayer = currentPlayer === PLAYER_X ? PLAYER_O : PLAYER_X;
         if (currentPlayer === PLAYER_O && !gameOver) {
+            // setTimeout(aiMove, 1000)
             aiMove(); // AI makes its move
         }
     }
